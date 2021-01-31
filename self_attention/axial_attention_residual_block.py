@@ -1,7 +1,7 @@
 from einops import rearrange
 from torch import nn
 
-from self_attention.axial_deeplab_attention import AxialAttentionAISummer
+from self_attention.axial_attention import AxialAttentionAISummer
 from self_attention.mhsa import MultiHeadSelfAttentionAISummer
 
 
