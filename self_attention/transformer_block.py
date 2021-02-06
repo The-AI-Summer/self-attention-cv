@@ -1,8 +1,10 @@
-import copy
-
 from torch import nn
 
 from .mhsa import MultiHeadSelfAttention
+from torch import nn
+
+from .mhsa import MultiHeadSelfAttention
+
 
 class TransformerBlock(nn.Module):
     """
