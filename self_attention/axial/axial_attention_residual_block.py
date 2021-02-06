@@ -2,7 +2,7 @@ from einops import rearrange
 from torch import nn
 
 from .axial_attention import AxialAttention
-from self_attention.mhsa import MultiHeadSelfAttention
+from ..transformer_vanilla.mhsa import MultiHeadSelfAttention
 
 
 def _conv2d1x1(in_channels, out_channels):

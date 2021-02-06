@@ -1,9 +1,6 @@
 from torch import nn
 
 from .mhsa import MultiHeadSelfAttention
-from torch import nn
-
-from .mhsa import MultiHeadSelfAttention
 
 
 class TransformerBlock(nn.Module):
@@ -26,7 +23,7 @@ class TransformerBlock(nn.Module):
         return self.linear(y) + y
 
 
-class Transformer(nn.Module):
+class TransformerEncoder(nn.Module):
     def __init__(self, dim, blocks=6, heads=8, dim_head=None):
         super().__init__()
         self.block_list = [TransformerBlock(dim, heads, dim_head) for _ in range(blocks)]
