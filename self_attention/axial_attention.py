@@ -11,7 +11,7 @@ def _conv1d1x1(in_channels, out_channels):
                          nn.BatchNorm1d(out_channels))
 
 
-class AxialAttentionAISummer(nn.Module):
+class AxialAttention(nn.Module):
     def __init__(self, in_channels, dim, heads=8, dim_head_v=16, dim_head_kq=8):
         """
         Fig.1 page 6 in Axial DeepLab paper
@@ -89,7 +89,7 @@ class AxialAttentionAISummer(nn.Module):
 in_channels = 128
 dim = 16
 a = torch.rand(4 * 64, in_channels, dim)
-model = AxialAttentionAISummer(in_channels=in_channels, dim=dim)
+model = AxialAttention(in_channels=in_channels, dim=dim)
 y = model(a)
 print(y.shape,a.shape)
 assert y.shape == a.shape

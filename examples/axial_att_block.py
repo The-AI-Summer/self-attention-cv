@@ -1,8 +1,8 @@
 import torch
 
-from self_attention import AxialAttentionBlockAISummer
+from self_attention import AxialAttentionBlock
 
-model = AxialAttentionBlockAISummer(in_channels=32, dim=64)
+model = AxialAttentionBlock(in_channels=32, dim=64)
 x = torch.rand(4, 32, 64, 64)  # [batch, tokens, dim, dim]
 
 y = model(x)

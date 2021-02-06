@@ -1,8 +1,8 @@
 from einops import rearrange
 from torch import nn
 
-from test.axial_attention import AxialAttentionAISummer
-from self_attention.mhsa import MultiHeadSelfAttentionAISummer
+from .axial_attention import AxialAttention
+from self_attention.mhsa import MultiHeadSelfAttention
 
 
 def _conv2d1x1(in_channels, out_channels):
@@ -12,7 +12,7 @@ def _conv2d1x1(in_channels, out_channels):
                          nn.BatchNorm2d(out_channels))
 
 
-class AxialAttentionBlockAISummer(nn.Module):
+class AxialAttentionBlock(nn.Module):
     def __init__(self, in_channels, dim, heads=8, dim_head=16, axial_att=True):
         """
         Axial-attention block implementation as described in:
@@ -34,8 +34,8 @@ class AxialAttentionBlockAISummer(nn.Module):
             self.width_att = AxialAttentionAISummer(in_channels=d_in, dim=dim, heads=heads)
             self.height_att = AxialAttentionAISummer(in_channels=d_in, dim=dim, heads=heads)
         else:
-            self.width_att = MultiHeadSelfAttentionAISummer(dim=dim, dim_head=dim_head, heads=heads)
-            self.height_att = MultiHeadSelfAttentionAISummer(dim=dim, dim_head=dim_head, heads=heads)
+            self.width_att = MultiHeadSelfAttention(dim=dim, dim_head=dim_head, heads=heads)
+            self.height_att = MultiHeadSelfAttention(dim=dim, dim_head=dim_head, heads=heads)
 
     def forward(self, x_in):
         assert x_in.dim() == 4, 'Ensure your input is 4D: [batch,channels, height,width]'

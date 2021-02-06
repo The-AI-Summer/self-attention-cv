@@ -4,7 +4,7 @@ from einops import rearrange
 from torch import nn
 
 
-class MultiHeadSelfAttentionAISummer(nn.Module):
+class MultiHeadSelfAttention(nn.Module):
     def __init__(self, dim, heads=8, dim_head=None):
         """
         Implementation of multi-head attention layer of the original transformer model.

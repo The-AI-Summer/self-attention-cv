@@ -1,6 +1,7 @@
-from .axial_attention_residual_block import AxialAttentionBlockAISummer
-from .mhsa import MultiHeadSelfAttentionAISummer
-from .self_attention import SelfAttentionAISummer
-from .axial_attention_naive import AxialAttentionNaiveAISummer
+from .axial_attention_residual_block import AxialAttentionBlock
+from .mhsa import MultiHeadSelfAttention
+from .self_attention import SelfAttention
+from .axial_attention_naive import AxialAttentionNaive
 from .relative_pos_enc_qkv import RelativePosEncQKV
-from .axial_attention import AxialAttentionAISummer
+from .axial_attention import AxialAttention
+from .transformer_block import TransformerBlock, Transformer

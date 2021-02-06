@@ -4,7 +4,7 @@ from einops import rearrange
 from torch import nn
 
 
-class SelfAttentionAISummer(nn.Module):
+class SelfAttention(nn.Module):
     """
     Implementation of plain self attention mechanism with einsum operations
     Paper: https://arxiv.org/abs/1706.03762

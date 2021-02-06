@@ -13,6 +13,21 @@ Ongoing repository. pip package coming soon...
 - How to implement multi-head self-attention blocks in PyTorch using the einsum notation
 
 
+### Code Examples
+
+```python
+import torch
+from self_attention import SelfAttentionAISummer
+
+model = SelfAttentionAISummer(dim=64)
+x = torch.rand(16, 10, 64)  # [batch, tokens, dim]
+mask = torch.zeros(10, 10)
+mask[3:8, 3:8] = 1
+y = model(x, mask)
+```
+
+```python
+```
 
 
 
@@ -21,9 +36,8 @@ Ongoing repository. pip package coming soon...
 - Multi-head-self-attention
 - Axial attention and axial attention residual block
 
-### TODO
-- Local attention
+#### TODO
+- Local attention for CV
 - Botleneck self-attention 
 
 
-### Code Examples
