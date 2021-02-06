@@ -5,3 +5,7 @@ __pycache__/
 .idea/*
 .Python
 build/
+experimentation
+experimentation/*
+
+

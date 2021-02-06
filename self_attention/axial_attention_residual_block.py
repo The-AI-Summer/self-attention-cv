@@ -1,7 +1,7 @@
 from einops import rearrange
 from torch import nn
 
-from self_attention.axial_attention import AxialAttentionAISummer
+from test.axial_attention import AxialAttentionAISummer
 from self_attention.mhsa import MultiHeadSelfAttentionAISummer
 
 
@@ -24,14 +24,15 @@ class AxialAttentionBlockAISummer(nn.Module):
         self.dim = dim
         self.dim_head = (int(dim / heads)) if dim_head is None else dim_head
         self.heads = heads
+        d_in = 128  # hardcoded
 
-        self.in_conv1x1 = _conv2d1x1(in_channels, 128)
-        self.out_conv1x1 = _conv2d1x1(128, in_channels)
+        self.in_conv1x1 = _conv2d1x1(in_channels, d_in)
+        self.out_conv1x1 = _conv2d1x1(d_in, in_channels)
         self.relu = nn.ReLU(inplace=True)
 
         if axial_att:
-            self.width_att = AxialAttentionAISummer(in_channels=128, dim=dim, heads=heads)
-            self.height_att = AxialAttentionAISummer(in_channels=128, dim=dim, heads=heads)
+            self.width_att = AxialAttentionAISummer(in_channels=d_in, dim=dim, heads=heads)
+            self.height_att = AxialAttentionAISummer(in_channels=d_in, dim=dim, heads=heads)
         else:
             self.width_att = MultiHeadSelfAttentionAISummer(dim=dim, dim_head=dim_head, heads=heads)
             self.height_att = MultiHeadSelfAttentionAISummer(dim=dim, dim_head=dim_head, heads=heads)

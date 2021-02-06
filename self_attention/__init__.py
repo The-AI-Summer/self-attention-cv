@@ -1,4 +1,6 @@
 from .axial_attention_residual_block import AxialAttentionBlockAISummer
-from .axial_attention import AxialAttentionAISummer
 from .mhsa import MultiHeadSelfAttentionAISummer
 from .self_attention import SelfAttentionAISummer
+from .axial_attention_naive import AxialAttentionNaiveAISummer
+from .relative_pos_enc_qkv import RelativePosEncQKV
+from .axial_attention import AxialAttentionAISummer
