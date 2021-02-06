@@ -86,10 +86,3 @@ class AxialAttention(nn.Module):
         # element wise sum in n=2 axis
         return torch.einsum('n b j i -> b j i', out)
 
-in_channels = 128
-dim = 16
-a = torch.rand(4 * 64, in_channels, dim)
-model = AxialAttention(in_channels=in_channels, dim=dim)
-y = model(a)
-print(y.shape,a.shape)
-assert y.shape == a.shape

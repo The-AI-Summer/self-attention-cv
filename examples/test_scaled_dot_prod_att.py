@@ -1,7 +1,7 @@
 import torch
-from self_attention import SelfAttentionAISummer
+from self_attention import SelfAttention
 
-model = SelfAttentionAISummer(dim=64)
+model = SelfAttention(dim=64)
 x = torch.rand(16, 10, 64)  # [batch, tokens, dim]
 mask = torch.zeros(10, 10)
 mask[5:8, 5:8] = 1
