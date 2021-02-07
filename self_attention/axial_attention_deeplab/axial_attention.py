@@ -2,7 +2,7 @@ import torch
 from einops import rearrange
 from torch import nn
 
-from self_attention.relative_pos_enc_qkv import RelativePosEncQKV
+from self_attention.pos_embeddings.relative_pos_enc_qkv import RelativePosEncQKV
 
 
 def _conv1d1x1(in_channels, out_channels):

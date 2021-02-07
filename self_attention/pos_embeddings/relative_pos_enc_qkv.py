@@ -26,7 +26,7 @@ class RelativePosEncQKV(nn.Module):
         query_index = torch.arange(self.dim).unsqueeze(0) # [1, dim]
         key_index = torch.arange(self.dim).unsqueeze(1)   # [dim, 1]
 
-        relative_index = key_index - query_index + self.dim - 1  # dim X dim
+        relative_index = (key_index - query_index) + self.dim - 1  # dim X dim
         return rearrange(relative_index, 'i j->(i j)')  # flatten
 
     def forward(self):
