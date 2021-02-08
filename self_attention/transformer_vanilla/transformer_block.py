@@ -9,18 +9,32 @@ class TransformerBlock(nn.Module):
     Detailed analysis: https://theaisummer.com/transformer/
     """
 
-    def __init__(self, dim, heads=8, dim_head=None):
+    def __init__(self, dim, heads=8, dim_head=None, dim_linear_block=1024, dropout=0.1):
+        """
+        Args:
+            dim: token's vector length
+            heads: number of heads
+            dim_head: if none dim/heads is used
+            dim_linear_block: the inner projection dim
+            dropout: probability of droppping values
+        """
         super().__init__()
         self.mhsa = MultiHeadSelfAttention(dim=dim, heads=heads, dim_head=dim_head)
-        self.norm = nn.LayerNorm(dim)
+        self.drop = nn.Dropout(dropout)
+        self.norm_1 = nn.LayerNorm(dim)
+        self.norm_2 = nn.LayerNorm(dim)
+
         self.linear = nn.Sequential(
-            nn.Linear(dim, dim),
-            nn.LayerNorm(dim)
+            nn.Linear(dim, dim_linear_block),
+            nn.ReLU(),
+            nn.Dropout(dropout),
+            nn.Linear(dim_linear_block, dim),
+            nn.Dropout(dropout)
         )
 
     def forward(self, x, mask=None):
-        y = self.norm(self.mhsa(x, mask)) + x
-        return self.linear(y) + y
+        y = self.norm_1(self.drop(self.mhsa(x, mask)) + x)
+        return self.norm_2(self.linear(y) + y)
 
 
 class TransformerEncoder(nn.Module):
