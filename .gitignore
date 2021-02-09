@@ -9,3 +9,5 @@ experimentation
 experimentation/*
 
 
+.idea/modules.xml
+.idea/self_attention.iml
