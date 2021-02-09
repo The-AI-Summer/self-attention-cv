@@ -1,5 +1,5 @@
 import torch
-from self_attention import SelfAttention
+from self_attention_cv import SelfAttention
 
 model = SelfAttention(dim=64)
 x = torch.rand(16, 10, 64)  # [batch, tokens, dim]

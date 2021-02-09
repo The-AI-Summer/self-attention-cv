@@ -17,7 +17,7 @@ Ongoing repository. pip package coming soon...
 
 ```python
 import torch
-from self_attention import SelfAttentionAISummer
+from self_attention_cv import SelfAttentionAISummer
 
 model = SelfAttentionAISummer(dim=64)
 x = torch.rand(16, 10, 64)  # [batch, tokens, dim]

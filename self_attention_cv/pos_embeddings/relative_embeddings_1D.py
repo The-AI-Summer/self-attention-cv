@@ -27,8 +27,6 @@ def rel_pos_emb_1d(q, rel_emb):
     rel_emb shape [ 2*tokens-1 , dim]
     """
     tokens = q.shape[2]
-
-
     emb = torch.einsum('b h t d, r d -> b h t r', q, rel_emb)
     emb = relative_to_absolute(emb, tokens=tokens, axis=-1)
     return emb

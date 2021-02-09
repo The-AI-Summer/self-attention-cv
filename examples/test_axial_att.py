@@ -1,7 +1,7 @@
 import torch
 
-from self_attention import AxialAttentionNaive
-from self_attention import AxialAttention
+from self_attention_cv import AxialAttentionNaive
+from self_attention_cv import AxialAttention
 
 in_channels = 128
 dim = 16
