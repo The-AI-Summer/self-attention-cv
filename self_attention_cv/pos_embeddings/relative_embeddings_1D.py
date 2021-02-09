@@ -3,45 +3,64 @@ import torch.nn as nn
 from einops import rearrange
 
 
-def relative_to_absolute(q_rel, tokens, axis=-1):
+# borrowed from
+# https://github.com/lucidrains/bottleneck-transformer-pytorch/blob/main/bottleneck_transformer_pytorch/bottleneck_transformer_pytorch.py#L21
+# i will try to reimplement the function
+# as soon as i understand how it works
+# not clear to me how it works yet
+def relative_to_absolute(q):
     """
     Converts the dimension that is specified from the axis
     from relative distances (with length 2*tokens-1) to absolute distance (length tokens)
+      Input: [bs, heads, length, 2*length - 1]
+      Output: [bs, heads, length, length]
     """
-    query_index = torch.arange(tokens).unsqueeze(0)  # [1, dim]
-    key_index = torch.arange(tokens).unsqueeze(1)  # [dim, 1]
+    b, h, l, _, device, dtype = *q.shape, q.device, q.dtype
+    dd = {'device': device, 'dtype': dtype}
+    col_pad = torch.zeros((b, h, l, 1), **dd)
+    x = torch.cat((q, col_pad), dim=3)  # zero pad 2l-1 to 2l
+    flat_x = rearrange(x, 'b h l c -> b h (l c)')
+    flat_pad = torch.zeros((b, h, l - 1), **dd)
+    flat_x_padded = torch.cat((flat_x, flat_pad), dim=2)
+    final_x = flat_x_padded.reshape(b, h, l + 1, 2 * l - 1)
+    final_x = final_x[:, :, :l, (l - 1):]
+    return final_x
 
-    relative_index = (key_index - query_index) + tokens - 1  # dim X dim (zero indexed)
-    flatten_index = rearrange(relative_index, 'i j->(i j)')  # flatten
-    abs_emb = torch.index_select(q_rel, axis, flatten_index)  # [head_planes , (dim*dim)]
-    return rearrange(abs_emb, 'b h t (x y) -> b h t x y', x=tokens)
 
-
-
-
-
-def rel_pos_emb_1d(q, rel_emb):
+def rel_pos_emb_1d(q, rel_emb, shared_heads):
     """
     Same functionality as RelPosEmb1D
-    q shape [batch, heads, tokens, dim]
-    rel_emb shape [ 2*tokens-1 , dim]
+
+    Args:
+        q: a 4d tensor of shape [batch, heads, tokens, dim]
+        rel_emb: a 2D or 3D tensor
+        of shape [ 2*tokens-1 , dim] or [ heads, 2*tokens-1 , dim]
     """
-    tokens = q.shape[2]
-    emb = torch.einsum('b h t d, r d -> b h t r', q, rel_emb)
-    emb = relative_to_absolute(emb, tokens=tokens, axis=-1)
-    return emb
+    if shared_heads:
+        emb = torch.einsum('b h t d, r d -> b h t r', q, rel_emb)
+    else:
+        emb = torch.einsum('b h t d, h r d -> b h t r', q, rel_emb)
+    return relative_to_absolute(emb)
 
 
 class RelPosEmb1D(nn.Module):
-    def __init__(self, tokens, dim):
+    def __init__(self, tokens, dim_head, heads=None):
         """
         Output: [batch head tokens tokens]
         Args:
+            tokens: the number of the tokens of the seq
             dim_head: the size of the last dimension of q
+
+            heads: if None representation is shared across heads.
+            else the number of heads must be provided
         """
         super().__init__()
-        scale = dim ** -0.5
-        self.rel_pos_emb = nn.Parameter(torch.randn(2 * tokens - 1, dim) * scale)
+        scale = dim_head ** -0.5
+        self.shared_heads = heads if heads is not None else True
+        if self.shared_heads:
+            self.rel_pos_emb = nn.Parameter(torch.randn(2 * tokens - 1, dim_head) * scale)
+        else:
+            self.rel_pos_emb = nn.Parameter(torch.randn(heads, 2 * tokens - 1, dim_head) * scale)
 
     def forward(self, q):
-        return rel_pos_emb_1d(q, self.rel_pos_emb)
+        return rel_pos_emb_1d(q, self.rel_pos_emb, self.shared_heads)

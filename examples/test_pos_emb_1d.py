@@ -4,17 +4,13 @@ from self_attention_cv.pos_embeddings import AbsPosEmb1D,RelPosEmb1D,rel_pos_emb
 
 model = AbsPosEmb1D(tokens=20, dim=64)
 q = torch.rand(2, 3, 20, 64)
-y = model(q)
+y1 = model(q)
 
-
-print('abs:',y.shape)
-
-
-model = RelPosEmb1D(tokens=20, dim=64)
+model = RelPosEmb1D(tokens=20, dim_head=64, heads=3)
 q = torch.rand(2, 3, 20, 64)
+y2 = model(q)
 
-y = rel_pos_emb_1d(q,torch.rand(39,64))
+assert y2.shape == y1.shape
+print('abs and pos emb ok')
 
-
-print('rel:',y.shape)
 
