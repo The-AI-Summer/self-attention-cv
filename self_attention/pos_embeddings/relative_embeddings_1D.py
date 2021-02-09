@@ -17,18 +17,7 @@ def relative_to_absolute(q_rel, tokens, axis=-1):
     return rearrange(abs_emb, 'b h t (x y) -> b h t x y', x=tokens)
 
 
-def relative_to_absolute2(rel, tokens, axis=-1):
-    """
-    Converts the dimension that is specified from the axis
-    from relative distances (with length 2*tokens-1) to absolute distance (length tokens)
-    """
-    query_index = torch.arange(tokens).unsqueeze(0)  # [1, dim]
-    key_index = torch.arange(tokens).unsqueeze(1)  # [dim, 1]
 
-    relative_index = (key_index - query_index) + tokens - 1  # dim X dim (zero indexed)
-    flatten_index = rearrange(relative_index, 'i j->(i j)')  # flatten
-    abs_emb = torch.index_select(rel, axis, flatten_index)  # [head_planes , (dim*dim)]
-    return rearrange(abs_emb, '(x y) dim -> x y dim', x=tokens)
 
 
 def rel_pos_emb_1d(q, rel_emb):
@@ -39,13 +28,10 @@ def rel_pos_emb_1d(q, rel_emb):
     """
     tokens = q.shape[2]
 
-    temp = relative_to_absolute2(rel_emb, tokens=tokens, axis=0)
-    print('temp shape:', temp.shape)
-    return temp
 
-    # emb = einsum('b h t d, r d -> b h t r', q, rel_emb)
-    # emb = relative_to_absolute(emb, tokens=tokens, axis=-1)
-    # return emb
+    emb = torch.einsum('b h t d, r d -> b h t r', q, rel_emb)
+    emb = relative_to_absolute(emb, tokens=tokens, axis=-1)
+    return emb
 
 
 class RelPosEmb1D(nn.Module):
