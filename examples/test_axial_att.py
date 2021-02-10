@@ -1,6 +1,4 @@
 import torch
-
-from self_attention_cv import AxialAttentionNaive
 from self_attention_cv import AxialAttention
 
 in_channels = 256
@@ -12,7 +10,3 @@ y = model(a)
 assert y.shape == a.shape
 print('AxialAttentionAISummer OK')
 
-# model = AxialAttentionNaive(in_channels=in_channels, dim=dim)
-# y = model(a)
-# assert y.shape == a.shape
-# print('AxialAttentionNaiveAISummer OK')
