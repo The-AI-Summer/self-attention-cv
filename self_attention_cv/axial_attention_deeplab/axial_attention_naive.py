@@ -43,7 +43,7 @@ class AxialAttentionNaive(nn.Module):
         return rearrange(relative_index, 'i j->(i j)')
 
     def forward(self, x_in):
-        assert x_in.dim() == 3, 'Ensure your input is 4D: [b * width, chan, height] or [b * height, chan, width]'
+        assert x_in.dim_head() == 3, 'Ensure your input is 4D: [b * width, chan, height] or [b * height, chan, width]'
 
         # Calculate position embedding -> [ batch*width , qkv_channels,  dim ]
         qkv = self.to_qvk(x_in)

@@ -24,7 +24,7 @@ class MultiHeadSelfAttention(nn.Module):
         self.scale_factor = self.dim_head ** -0.5
 
     def forward(self, x, mask=None):
-        assert x.dim() == 3
+        assert x.dim_head() == 3
         qkv = self.to_qvk(x)  # [batch, tokens, dim*3*heads ]
 
         # decomposition to q,v,k and cast to tuple

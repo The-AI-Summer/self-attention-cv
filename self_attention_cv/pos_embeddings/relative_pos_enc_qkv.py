@@ -3,34 +3,39 @@ from einops import rearrange
 from torch import nn
 
 
-class RelativePosEncQKV(nn.Module):
-    """
-    Implementation of 1D relative positional embeddings for q,v,k
-    resulting shape will be [dim_head, dim, dim] ,
-    Embeddings are shared across heads for q,k,v
-    Based on Axial DeepLab https://arxiv.org/abs/2003.07853
-    """
-    def __init__(self, dim, heads_planes, dim_head_v=16, dim_head_kq=8):
+class Relative2DPosEncQKV(nn.Module):
+    def __init__(self, dim_head, dim_v=16, dim_kq=8):
+        """
+        Implementation of 2D relative positional embeddings for q,v,k
+        Out shape shape will be [dim_head, dim, dim]
+        Embeddings are shared across heads for all q,k,v
+        Based on Axial DeepLab https://arxiv.org/abs/2003.07853
+
+        Args:
+            dim_head: the dimension of the head
+            dim_v: d_out in the paper
+            dim_kq: d_k in the paper
+        """
         super().__init__()
-        self.dim = dim
-        self.heads_planes = heads_planes
-        self.dim_head_v = dim_head_v
-        self.dim_head_kq = dim_head_kq
+        self.dim = dim_head
+        self.dim_head_v = dim_v
+        self.dim_head_kq = dim_kq
+        self.qkv_chan = 2*self.dim_head_kq + self.dim_head_v
 
-        # 1D relative position embedding matrix
-        self.relative = nn.Parameter(torch.randn(self.heads_planes * 2, dim * 2 - 1), requires_grad=True)
-        self.flatten_index = self.find_flattend_index()
+        # 2D relative position embeddings of q,k,v:
+        self.relative = nn.Parameter(torch.randn(self.qkv_chan, dim_head * 2 - 1), requires_grad=True)
+        self.relative_index_2d = self.relative_index()
 
-    def find_flattend_index(self):
+    def relative_index(self):
         # integer lists from 0 to 63
         query_index = torch.arange(self.dim).unsqueeze(0) # [1, dim]
         key_index = torch.arange(self.dim).unsqueeze(1)   # [dim, 1]
 
-        relative_index = (key_index - query_index) + self.dim - 1  # dim X dim
-        return rearrange(relative_index, 'i j->(i j)')  # flatten
+        relative_index_2d = (key_index - query_index) + self.dim - 1  # dim X dim
+        return rearrange(relative_index_2d, 'i j->(i j)')  # flatten
 
     def forward(self):
-        all_embeddings = torch.index_select(self.relative, 1, self.flatten_index)  # [head_planes , (dim*dim)]
+        all_embeddings = torch.index_select(self.relative, 1, self.relative_index_2d)  # [head_planes , (dim*dim)]
 
         all_embeddings = rearrange(all_embeddings, ' c (x y)  -> c x y',x=self.dim)
 
