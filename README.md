@@ -36,9 +36,8 @@ y = model(x, mask)
 ```python
 import torch
 from self_attention_cv import AxialAttentionBlock
-
-model = AxialAttentionBlock(in_channels=32, dim=64)
-x = torch.rand(4, 32, 64, 64)  # [batch, tokens, dim, dim]
+model = AxialAttentionBlock(in_channels=256, dim=64, heads=8)
+x = torch.rand(1, 256, 64, 64)  # [batch, tokens, dim, dim]
 y = model(x)
 ```
 
