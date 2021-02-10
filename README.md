@@ -1,43 +1,87 @@
+<div align="center">
+<img src="feat_img.png"/>
+</div>
+
 # Self-attention building blocks for computer vision applications in PyTorch
 
-Implementation of self attention mechanisms for general purpose in PyTorch with einsum and einops.rearrange
-
+Implementation of self attention mechanisms for computer vision in PyTorch with einsum and einops
 
 Focused on computer vision self-attention modules. 
 
 Ongoing repository. pip package coming soon...
 
-## Background on attention and transformers
+## Related articles: attention and transformers and einsum
 - [How Attention works in Deep Learning](https://theaisummer.com/attention/)
 - [How Transformers work in deep learning and NLP](https://theaisummer.com/transformer/)
-- How to implement multi-head self-attention blocks in PyTorch using the einsum notation
+- Understanding einsum for Deep learning: implement a transformer with multi-head self-attention from scratch
 
 
-### Code Examples
+## Code Examples
+
+#### Multi head attention
 
 ```python
 import torch
-from self_attention_cv import SelfAttentionAISummer
+from self_attention_cv import MultiHeadSelfAttention
 
-model = SelfAttentionAISummer(dim=64)
+model = MultiHeadSelfAttention(dim=64)
 x = torch.rand(16, 10, 64)  # [batch, tokens, dim]
-mask = torch.zeros(10, 10)
-mask[3:8, 3:8] = 1
+mask = torch.zeros(10, 10)  # tokens X tokens
+mask[5:8, 5:8] = 1
 y = model(x, mask)
 ```
 
+#### Axial attention
+
 ```python
+import torch
+from self_attention_cv import AxialAttentionBlock
+
+model = AxialAttentionBlock(in_channels=32, dim=64)
+x = torch.rand(4, 32, 64, 64)  # [batch, tokens, dim, dim]
+y = model(x)
+```
+
+#### Vanilla Transformer Encoder
+```python
+import torch
+from self_attention_cv import TransformerEncoder
+
+model = TransformerEncoder(dim=64,blocks=6,heads=8)
+x = torch.rand(16, 10, 64)  # [batch, tokens, dim]
+mask = torch.zeros(10, 10)  # tokens X tokens
+mask[5:8, 5:8] = 1
+y = model(x,mask)
+```
+
+#### 1D Positional Embeddings 
+
+```python
+import torch
+from self_attention_cv.pos_embeddings import AbsPosEmb1D,RelPosEmb1D
+
+model = AbsPosEmb1D(tokens=20, dim_head=64)
+# batch heads tokens dim_head
+q = torch.rand(2, 3, 20, 64)
+y1 = model(q)
+
+model = RelPosEmb1D(tokens=20, dim_head=64, heads=3)
+q = torch.rand(2, 3, 20, 64)
+y2 = model(q)
 ```
 
 
 
-### Attention modules implemented so far:
-- Scaled dot product self attention
-- Multi-head-self-attention
-- Axial attention and axial attention residual block
-
 #### TODO
 - Local attention for CV
-- Botleneck self-attention 
+
+- Bottleneck self-attention/Transformer
+
+   
+## References
+
+1. Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez, A. N., ... & Polosukhin, I. (2017). Attention is all you need. arXiv preprint arXiv:1706.03762.
+2. Wang, H., Zhu, Y., Green, B., Adam, H., Yuille, A., & Chen, L. C. (2020, August). Axial-deeplab: Stand-alone axial-attention for panoptic segmentation. In European Conference on Computer Vision (pp. 108-126). Springer, Cham.
+   
 
 

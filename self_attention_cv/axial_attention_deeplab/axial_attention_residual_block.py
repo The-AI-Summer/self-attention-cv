@@ -31,8 +31,8 @@ class AxialAttentionBlock(nn.Module):
         self.relu = nn.ReLU(inplace=True)
 
         if axial_att:
-            self.width_att = AxialAttention(in_channels=d_in, dim=dim, heads=heads)
-            self.height_att = AxialAttention(in_channels=d_in, dim=dim, heads=heads)
+            self.width_att = AxialAttention(dim=dim, in_channels=d_in, heads=heads)
+            self.height_att = AxialAttention(dim=dim, in_channels=d_in, heads=heads)
         else:
             self.width_att = MultiHeadSelfAttention(dim=dim, dim_head=dim_head, heads=heads)
             self.height_att = MultiHeadSelfAttention(dim=dim, dim_head=dim_head, heads=heads)

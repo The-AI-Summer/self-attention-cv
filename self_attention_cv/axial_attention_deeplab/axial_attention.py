@@ -12,7 +12,7 @@ def _conv1d1x1(in_channels, out_channels):
 
 
 class AxialAttention(nn.Module):
-    def __init__(self, in_channels, dim, heads=8, dim_head_v=16, dim_head_kq=8):
+    def __init__(self, dim, in_channels=128, heads=8, dim_head_v=16, dim_head_kq=8):
         """
         Fig.1 page 6 in Axial DeepLab paper
         """
