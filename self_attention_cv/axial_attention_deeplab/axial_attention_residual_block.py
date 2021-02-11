@@ -5,10 +5,10 @@ from .axial_attention import AxialAttention
 from ..transformer_vanilla.mhsa import MultiHeadSelfAttention
 
 
-def _conv2d1x1(in_channels, out_channels):
+def _conv2d1x1(in_channels, out_channels, stride=1):
     """1x1 convolution for contraction and expansion of the channels dimension
     conv is followed by batch norm"""
-    return nn.Sequential(nn.Conv2d(in_channels, out_channels, kernel_size=1, stride=1, bias=False),
+    return nn.Sequential(nn.Conv2d(in_channels, out_channels, kernel_size=1, stride=stride, bias=False),
                          nn.BatchNorm2d(out_channels))
 
 
