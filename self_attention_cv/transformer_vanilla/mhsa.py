@@ -45,4 +45,3 @@ class MultiHeadSelfAttention(nn.Module):
         out = rearrange(out, "b h t d -> b t (h d)")
         # Apply final linear transformation layer
         return self.W_0(out)
-

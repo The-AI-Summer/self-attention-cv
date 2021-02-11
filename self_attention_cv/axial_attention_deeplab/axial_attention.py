@@ -22,12 +22,12 @@ class AxialAttention(nn.Module):
             dim_head_kq: inner dim
         """
         super().__init__()
-        self.dim_head = in_channels//heads
+        self.dim_head = in_channels // heads
         self.dim = dim
 
         self.heads = heads
 
-        self.dim_head_v = self.dim_head # d_out
+        self.dim_head_v = self.dim_head  # d_out
         self.dim_head_kq = dim_head_kq
         self.qkv_channels = self.dim_head_v + self.dim_head_kq * 2
         self.to_qvk = _conv1d1x1(in_channels, self.heads * self.qkv_channels)

@@ -20,7 +20,7 @@ class Relative2DPosEncQKV(nn.Module):
         self.dim = dim_head
         self.dim_head_v = dim_v
         self.dim_head_kq = dim_kq
-        self.qkv_chan = 2*self.dim_head_kq + self.dim_head_v
+        self.qkv_chan = 2 * self.dim_head_kq + self.dim_head_v
 
         # 2D relative position embeddings of q,k,v:
         self.relative = nn.Parameter(torch.randn(self.qkv_chan, dim_head * 2 - 1), requires_grad=True)
@@ -28,8 +28,8 @@ class Relative2DPosEncQKV(nn.Module):
 
     def relative_index(self):
         # integer lists from 0 to 63
-        query_index = torch.arange(self.dim).unsqueeze(0) # [1, dim]
-        key_index = torch.arange(self.dim).unsqueeze(1)   # [dim, 1]
+        query_index = torch.arange(self.dim).unsqueeze(0)  # [1, dim]
+        key_index = torch.arange(self.dim).unsqueeze(1)  # [dim, 1]
 
         relative_index_2d = (key_index - query_index) + self.dim - 1  # dim X dim
         return rearrange(relative_index_2d, 'i j->(i j)')  # flatten
@@ -37,7 +37,7 @@ class Relative2DPosEncQKV(nn.Module):
     def forward(self):
         all_embeddings = torch.index_select(self.relative, 1, self.relative_index_2d)  # [head_planes , (dim*dim)]
 
-        all_embeddings = rearrange(all_embeddings, ' c (x y)  -> c x y',x=self.dim)
+        all_embeddings = rearrange(all_embeddings, ' c (x y)  -> c x y', x=self.dim)
 
         q_embedding, k_embedding, v_embedding = torch.split(all_embeddings,
                                                             [self.dim_head_kq, self.dim_head_kq, self.dim_head_v],

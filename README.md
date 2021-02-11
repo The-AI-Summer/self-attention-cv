@@ -13,7 +13,8 @@ Ongoing repository. pip package coming soon...
 ## Related articles: attention and transformers and einsum
 - [How Attention works in Deep Learning](https://theaisummer.com/attention/)
 - [How Transformers work in deep learning and NLP](https://theaisummer.com/transformer/)
-- Understanding einsum for Deep learning: implement a transformer with multi-head self-attention from scratch
+- [How the Vision Transformer (ViT) works in 10 minutes: an image is worth 16x16 words](https://theaisummer.com/vision-transformer/)
+- [Understanding einsum for Deep learning: implement a transformer with multi-head self-attention from scratch](https://theaisummer.com/einsum-attention/)
 
 
 ## Code Examples

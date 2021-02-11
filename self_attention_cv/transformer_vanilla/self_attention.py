@@ -10,6 +10,7 @@ class SelfAttention(nn.Module):
     Paper: https://arxiv.org/abs/1706.03762
     Blog: https://theaisummer.com/transformer/
     """
+
     def __init__(self, dim):
         """
         Args:
@@ -38,5 +39,3 @@ class SelfAttention(nn.Module):
 
         attention = torch.softmax(scaled_dot_prod, dim=-1)
         return torch.einsum('b i j , b j d -> b i d', attention, v)
-
-

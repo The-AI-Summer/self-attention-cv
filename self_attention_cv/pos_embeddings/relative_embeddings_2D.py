@@ -1,6 +1,6 @@
-import torch
 import torch.nn as nn
-from einops import rearrange, repeat
+from einops import rearrange
+
 from self_attention_cv.pos_embeddings.relative_embeddings_1D import RelPosEmb1D
 
 
@@ -21,7 +21,6 @@ class RelPosEmb2D(nn.Module):
         super().__init__()
         self.h, self.w = feat_map_size  # height , width
         self.total_tokens = self.h * self.w
-        scale = dim_head ** -0.5
         self.shared_heads = heads if heads is not None else True
 
         self.emb_w = RelPosEmb1D(self.h, dim_head, heads)
@@ -47,4 +46,4 @@ class RelPosEmb2D(nn.Module):
         r_h = self.emb_w(rearrange(q, 'b h (x y) d -> b (h x) y d', x=self.h, y=self.w))
         r_w = self.emb_h(rearrange(q, 'b h (x y) d -> b (h y) x d', x=self.h, y=self.w))
         q_r = self.expand_emb(r_h, self.h) + self.expand_emb(r_w, self.h)
-        return q_r # q_r transpose in figure 4
+        return q_r  # q_r transpose in figure 4

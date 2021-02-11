@@ -1,6 +1,6 @@
 import torch
 
-from self_attention_cv.pos_embeddings import AbsPosEmb1D,RelPosEmb1D
+from self_attention_cv.pos_embeddings import AbsPosEmb1D, RelPosEmb1D
 
 model = AbsPosEmb1D(tokens=20, dim_head=64)
 # batch heads tokens dim_head
@@ -13,5 +13,3 @@ y2 = model(q)
 
 assert y2.shape == y1.shape
 print('abs and pos emb ok')
-
-

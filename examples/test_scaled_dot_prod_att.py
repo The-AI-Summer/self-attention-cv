@@ -1,4 +1,5 @@
 import torch
+
 from self_attention_cv import SelfAttention
 
 model = SelfAttention(dim=64)
