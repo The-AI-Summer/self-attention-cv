@@ -5,7 +5,6 @@ from torch import nn, einsum
 from ..pos_embeddings import RelPosEmb2D
 
 
-
 class BottleneckAttention(nn.Module):
     def __init__(
             self,

@@ -70,12 +70,27 @@ q = torch.rand(2, 3, 20, 64)
 y2 = model(q)
 ```
 
+#### 2D Positional Embeddings
+```python
+import torch
+from self_attention_cv.pos_embeddings import RelPosEmb2D
+dim = 32  # spatial dim of the feat map
+model = RelPosEmb2D(
+    feat_map_size=(dim, dim),
+    dim_head=128)
 
+q = torch.rand(2, 4, dim*dim, 128)
+y = model(q)
+```
 
-#### TODO
-- Local attention for CV
-
-- Bottleneck self-attention/Transformer
+#### Bottleneck Attention block 
+```python
+import torch
+from self_attention_cv.bottleneck_transformer import BottleneckBlock
+inp = torch.rand(1, 512, 32, 32)
+bottleneck_block = BottleneckBlock(in_channels=512, fmap_size=(32, 32), heads=4, out_channels=1024, pooling=True)
+y = bottleneck_block(inp)
+```
 
    
 ## References

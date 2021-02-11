@@ -40,7 +40,7 @@ class BottleneckBlock(nn.Module):
                                    pool_layer,
                                    nn.BatchNorm2d(mhsa_out_channels),
                                    nn.ReLU(),
-                                   expansion) # no relu after expansion
+                                   expansion)  # no relu after expansion
         # TODO find init_zero=True tf param for batch norm
 
         # skip connection
