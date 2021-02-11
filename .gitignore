@@ -7,6 +7,8 @@ __pycache__/
 build/
 experimentation
 experimentation/*
+dist/
+self_attention_cv.egg-info/
 
 
 .idea/modules.xml
