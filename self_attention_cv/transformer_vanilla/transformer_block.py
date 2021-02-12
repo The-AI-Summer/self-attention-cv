@@ -9,7 +9,7 @@ class TransformerBlock(nn.Module):
     Detailed analysis: https://theaisummer.com/transformer/
     """
 
-    def __init__(self, dim, heads=8, dim_head=None, dim_linear_block=1024, dropout=0.1):
+    def __init__(self, dim, heads=8, dim_head=None, dim_linear_block=1024, dropout=0.1, activation=nn.GELU):
         """
         Args:
             dim: token's vector length
@@ -26,7 +26,7 @@ class TransformerBlock(nn.Module):
 
         self.linear = nn.Sequential(
             nn.Linear(dim, dim_linear_block),
-            nn.ReLU(),
+            activation(),  # nn.ReLU or nn.GELU
             nn.Dropout(dropout),
             nn.Linear(dim_linear_block, dim),
             nn.Dropout(dropout)
@@ -38,9 +38,9 @@ class TransformerBlock(nn.Module):
 
 
 class TransformerEncoder(nn.Module):
-    def __init__(self, dim, blocks=6, heads=8, dim_head=None):
+    def __init__(self, dim, blocks=6, heads=8, dim_head=None, dim_linear_block=1024, dropout=0):
         super().__init__()
-        self.block_list = [TransformerBlock(dim, heads, dim_head) for _ in range(blocks)]
+        self.block_list = [TransformerBlock(dim, heads, dim_head, dim_linear_block, dropout) for _ in range(blocks)]
         self.layers = nn.ModuleList(self.block_list)
 
     def forward(self, x, mask=None):

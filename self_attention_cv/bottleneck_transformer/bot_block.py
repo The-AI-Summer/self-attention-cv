@@ -15,7 +15,17 @@ class BottleneckBlock(nn.Module):
                  content_positional_embedding=True):
         """
         paper: https://arxiv.org/abs/2101.11605
-        Figure 3, and Table 1
+        Check figure 3, and Table 1
+
+        Args:
+            in_channels: number of feat_maps
+            fmap_size: spatial dims
+            out_channels: the desired output channels of the layers
+            proj_factor: used to calc. the bottleneck dim of the MHSA. (out_channels // proj_factor)
+            heads: number of representation to learn from the input
+            dim_head: defaults to (bottleneck_dimension/heads)
+            pooling: (bool) whether to apply avg pool after bot-MHSA
+            content_positional_embedding: (bool) whether to apply 2D rel pos enc
         """
         super().__init__()
         bottleneck_dimension = out_channels // proj_factor  # contraction_channels 512
@@ -41,6 +51,7 @@ class BottleneckBlock(nn.Module):
                                    nn.BatchNorm2d(mhsa_out_channels),
                                    nn.ReLU(),
                                    expansion)  # no relu after expansion
+
         # TODO find init_zero=True tf param for batch norm
 
         # skip connection
