@@ -45,7 +45,7 @@ class TransUnet(nn.Module):
         # Vision Transformer ViT
         x6 = self.vit(x4)
         x7 = rearrange(x6, ' b (x y) dim -> b dim x y ', x=self.img_dim, y=self.img_dim)
-        
+
         # Decoder
 
         return x7
