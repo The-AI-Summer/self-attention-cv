@@ -15,7 +15,7 @@ class ViT(nn.Module):
                  blocks=6,
                  heads=4,
                  dim_linear_block=1024,
-                 dim_head=64,
+                 dim_head=None,
                  dropout=0, transformer=None, classification=True):
         """
         Minimal reimplementation of ViT
@@ -41,6 +41,7 @@ class ViT(nn.Module):
         tokens = (img_dim // patch_dim) ** 2
         self.token_dim = in_channels * (patch_dim ** 2)
         self.dim = dim
+        self.dim_head = (int(dim / heads)) if dim_head is None else dim_head
 
         # Projection and pos embeddings
         self.project_patches = nn.Linear(self.token_dim, dim)
@@ -56,7 +57,7 @@ class ViT(nn.Module):
 
         if transformer is None:
             self.transformer = TransformerEncoder(dim, blocks=blocks, heads=heads,
-                                                  dim_head=dim_head,
+                                                  dim_head=self.dim_head,
                                                   dim_linear_block=dim_linear_block,
                                                   dropout=dropout)
         else:
@@ -88,7 +89,8 @@ class ViT(nn.Module):
         # feed patch_embeddings and output of transformer. shape: [batch, tokens, dim]
         y = self.transformer(patch_embeddings, mask)
 
-        # we index only the cls token for classification. nlp tricks :P
-        y = y[:, 0, :] if self.classification else y.mean(dim=1)
-
-        return self.mlp_head(y)
+        if self.classification:
+            # we index only the cls token for classification. nlp tricks :P
+            return self.mlp_head(y[:, 0, :])
+        else:
+            return y

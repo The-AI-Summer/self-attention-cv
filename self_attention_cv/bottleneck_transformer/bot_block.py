@@ -82,7 +82,7 @@ class BottleneckModule(nn.Module):
                  num_layers=3,  # default
                  ):
         """
-        Applies 3 bottleneck layers
+        Applies 3 bottleneck layers as in the original paper
         Args:
             in_channels: number of feat_maps
             fmap_size: spatial dims
