@@ -26,6 +26,7 @@ class DoubleConv(nn.Module):
     """
     Double convolution block that keeps that spatial sizes the same
     """
+
     def __init__(self, in_ch, out_ch, norm_layer=None):
         super(DoubleConv, self).__init__()
         self.conv = nn.Sequential(SignleConv(in_ch, out_ch, norm_layer),

@@ -1,6 +1,9 @@
 import torch.nn as nn
 
 
+# taken and adapted form torchvision repo
+# https://github.com/pytorch/vision/blob/af97ec2f4c9daac091b9a87355c4f22d37488004/torchvision/models/resnet.py#L86
+
 def conv3x3(in_planes: int, out_planes: int, stride: int = 1, groups: int = 1, dilation: int = 1) -> nn.Conv2d:
     """3x3 convolution with padding"""
     return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride,
@@ -12,8 +15,6 @@ def conv1x1(in_planes: int, out_planes: int, stride: int = 1) -> nn.Conv2d:
     return nn.Conv2d(in_planes, out_planes, kernel_size=1, stride=stride, bias=False)
 
 
-# taken and adapted form torchvision repo
-# https://github.com/pytorch/vision/blob/af97ec2f4c9daac091b9a87355c4f22d37488004/torchvision/models/resnet.py#L86
 class Bottleneck(nn.Module):
     # Bottleneck in torchvision places the stride for downsampling at 3x3 convolution(self.conv2)
     # while original implementation places the stride at the first 1x1 convolution(self.conv1)

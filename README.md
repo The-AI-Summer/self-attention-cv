@@ -4,22 +4,25 @@
 
 # Self-attention building blocks for computer vision applications in PyTorch
 
-Implementation of self attention mechanisms for computer vision in PyTorch with einsum and einops
-
+Implementation of self attention mechanisms for computer vision in PyTorch with einsum and einops.
 Focused on computer vision self-attention modules. 
 
-Ongoing repository. pip package coming soon...
+#### Install it via pip 
+It would be nice to install pytorch in your enviroment, in case you don't have a GPU.
 
-## Related articles: attention and transformers and einsum
+```pip install self-attention-cv``` 
+
+## Related articles
 - [How Attention works in Deep Learning](https://theaisummer.com/attention/)
 - [How Transformers work in deep learning and NLP](https://theaisummer.com/transformer/)
 - [How the Vision Transformer (ViT) works in 10 minutes: an image is worth 16x16 words](https://theaisummer.com/vision-transformer/)
 - [Understanding einsum for Deep learning: implement a transformer with multi-head self-attention from scratch](https://theaisummer.com/einsum-attention/)
 
+More articles are on the way.
 
 ## Code Examples
 
-#### Multi head attention
+#### Multi-head attention
 
 ```python
 import torch
@@ -46,13 +49,48 @@ y = model(x)
 ```python
 import torch
 from self_attention_cv import TransformerEncoder
-
 model = TransformerEncoder(dim=64,blocks=6,heads=8)
 x = torch.rand(16, 10, 64)  # [batch, tokens, dim]
 mask = torch.zeros(10, 10)  # tokens X tokens
 mask[5:8, 5:8] = 1
 y = model(x,mask)
 ```
+#### Vision Transformer with/without ResNet50 backbone for image classification
+```python
+import torch
+from self_attention_cv import ViT, ResNet50ViT
+
+model1 = ResNet50ViT(img_dim=128, pretrained_resnet=False, 
+                        blocks=6, num_classes=10, 
+                        dim_linear_block=256, dim=256)
+# or
+model2 = ViT(img_dim=256, in_channels=3, patch_dim=16, num_classes=10,dim=512)
+x = torch.rand(2, 3, 256, 256)
+y = model2(x) # [2,10]
+```
+
+#### A re-implementation of Unet with the Vision Transformer encoder
+
+```python
+import torch
+from self_attention_cv.transunet import TransUnet
+a = torch.rand(2, 3, 128, 128)
+model = TransUnet(in_channels=3, img_dim=128, vit_blocks=8,
+vit_dim_linear_mhsa_block=512, classes=5)
+y = model(a) # [2, 5, 128, 128]
+```
+
+#### Bottleneck Attention block 
+```python
+import torch
+from self_attention_cv.bottleneck_transformer import BottleneckBlock
+inp = torch.rand(1, 512, 32, 32)
+bottleneck_block = BottleneckBlock(in_channels=512, fmap_size=(32, 32), heads=4, out_channels=1024, pooling=True)
+y = bottleneck_block(inp)
+```
+
+
+### Position embeddings are also available
 
 #### 1D Positional Embeddings 
 
@@ -82,16 +120,6 @@ model = RelPosEmb2D(
 q = torch.rand(2, 4, dim*dim, 128)
 y = model(q)
 ```
-
-#### Bottleneck Attention block 
-```python
-import torch
-from self_attention_cv.bottleneck_transformer import BottleneckBlock
-inp = torch.rand(1, 512, 32, 32)
-bottleneck_block = BottleneckBlock(in_channels=512, fmap_size=(32, 32), heads=4, out_channels=1024, pooling=True)
-y = bottleneck_block(inp)
-```
-
 
 ## References
 
