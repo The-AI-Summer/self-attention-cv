@@ -34,8 +34,6 @@ class Bottleneck(nn.Module):
         else:
             self.downsample = nn.Identity()
 
-
-
         width = int(planes * (base_width / 64.)) * groups
 
         self.conv1 = conv1x1(inplanes, width)

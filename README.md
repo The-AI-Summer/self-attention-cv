@@ -92,7 +92,7 @@ bottleneck_block = BottleneckBlock(in_channels=512, fmap_size=(32, 32), heads=4,
 y = bottleneck_block(inp)
 ```
 
-   
+
 ## References
 
 1. Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez, A. N., ... & Polosukhin, I. (2017). Attention is all you need. arXiv preprint arXiv:1706.03762.

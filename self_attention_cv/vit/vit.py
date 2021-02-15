@@ -50,10 +50,9 @@ class ViT(nn.Module):
         if self.classification:
             self.cls_token = nn.Parameter(torch.randn(1, 1, dim))
             self.pos_emb1D = nn.Parameter(torch.randn(tokens + 1, dim))
+            self.mlp_head = nn.Linear(dim, num_classes)
         else:
             self.pos_emb1D = nn.Parameter(torch.randn(tokens, dim))
-
-        self.mlp_head = nn.Linear(dim, num_classes)
 
         if transformer is None:
             self.transformer = TransformerEncoder(dim, blocks=blocks, heads=heads,

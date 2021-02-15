@@ -1,51 +1,66 @@
-import torch
 import torch.nn as nn
 from einops import rearrange
+
 from .bottleneck_layer import Bottleneck
+from .decoder import Up, SignleConv
 from ..vit import ViT
 
 
 class TransUnet(nn.Module):
-    def __init__(self, *, img_dim, in_channels,
+    def __init__(self, *, img_dim, in_channels, classes,
                  vit_blocks=1,
                  vit_heads=4,
                  vit_dim_linear_mhsa_block=512,
                  ):
         super().__init__()
-        self.inplanes = 64
+        self.inplanes = 128
+        resnet_7x7_conv = True
 
-        in_conv1 = nn.Conv2d(in_channels, self.inplanes, kernel_size=7, stride=2, padding=3,
-                             bias=False)
-        bn1 = nn.BatchNorm2d(self.inplanes)
-        self.init_conv = nn.Sequential(in_conv1, bn1, nn.ReLU(inplace=True))
-        self.pool = nn.MaxPool2d(kernel_size=3, stride=2, padding=0)
+        if resnet_7x7_conv:
+            in_conv1 = nn.Conv2d(in_channels, self.inplanes, kernel_size=7, stride=2, padding=3,
+                                 bias=False)
+            bn1 = nn.BatchNorm2d(self.inplanes)
+            self.init_conv = nn.Sequential(in_conv1, bn1, nn.ReLU(inplace=True))
+            #self.pool = nn.MaxPool2d(kernel_size=3, stride=2, padding=0)
+        else:
+            self.init_conv = Bottleneck(in_channels, self.inplanes, stride=2)
 
-        self.conv1 = Bottleneck(self.inplanes, 128)
-        self.conv2 = Bottleneck(128, 256, stride=2)
-        self.conv3 = Bottleneck(256, 512, stride=2)
 
-        self.img_dim = img_dim//16
-        self.vit = ViT(img_dim=self.img_dim,
-                       in_channels=512, # based on resnet channels
+        self.conv1 = Bottleneck(self.inplanes, self.inplanes*2,stride=2)
+        self.conv2 = Bottleneck(self.inplanes*2, self.inplanes*4, stride=2)
+        self.conv3 = Bottleneck(self.inplanes*4, self.inplanes*8,stride=2)
+
+        vit_channels = self.inplanes*8
+
+        self.img_dim_vit = img_dim // 16
+        self.vit = ViT(img_dim=self.img_dim_vit,
+                       in_channels=vit_channels,  # based on resnet channels
                        patch_dim=1,
-                       dim=512, # out channels for decoding
+                       dim=vit_channels,  # vit out channels for decoding
                        blocks=vit_blocks,
                        heads=vit_heads,
                        dim_linear_block=vit_dim_linear_mhsa_block,
                        classification=False)
 
+        self.vit_conv = SignleConv(in_ch=vit_channels, out_ch=512)
+
+        self.dec1 = Up(1024, 256)
+        self.dec2 = Up(512, 128)
+        self.dec3 = Up(256, 64)
+        self.dec4 = Up(64, 16)
+        self.conv1x1 = nn.Conv2d(16,classes,kernel_size=1)
+
     def forward(self, x):
         # ResNet 50 encoder
-        x1 = self.init_conv(x)
-        x2 = self.pool(x1)
-        x2 = self.conv1(x2)
-        x3 = self.conv2(x2)
-        x4 = self.conv3(x3)
-
-        # Vision Transformer ViT
-        x6 = self.vit(x4)
-        x7 = rearrange(x6, ' b (x y) dim -> b dim x y ', x=self.img_dim, y=self.img_dim)
-
-        # Decoder
-
-        return x7
+        x2 = self.init_conv(x) # 128,64,64
+        x4 = self.conv1(x2)  # 256,32,32
+        x8 = self.conv2(x4) # 512,16,16
+        x16 = self.conv3(x8) # 1024,8,8
+        y = self.vit(x16)
+        y = rearrange(y, 'b (x y) dim -> b dim x y ', x=self.img_dim_vit, y=self.img_dim_vit)
+        y = self.vit_conv(y)
+        y = self.dec1(y, x8) # 256,16,16
+        y = self.dec2(y, x4)
+        y = self.dec3(y, x2)
+        y = self.dec4(y)
+        return self.conv1x1(y)
