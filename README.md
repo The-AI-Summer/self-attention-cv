@@ -8,9 +8,11 @@ Implementation of self attention mechanisms for computer vision in PyTorch with 
 Focused on computer vision self-attention modules. 
 
 #### Install it via pip 
-It would be nice to install pytorch in your enviroment, in case you don't have a GPU.
 
-```pip install self-attention-cv``` 
+```$ pip install self-attention-cv``` 
+
+It would be nice to pre-install pytorch in your environment, in case you don't have a GPU.
+
 
 ## Related articles
 - [How Attention works in Deep Learning](https://theaisummer.com/attention/)

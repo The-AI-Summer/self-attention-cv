@@ -8,8 +8,7 @@ class RelPosEmb2D(nn.Module):
     def __init__(self, feat_map_size, dim_head, heads=None):
         """
         Based on Bottleneck transformer paper
-        paper: https://arxiv.org/abs/2101.11605
-        Figure 4
+        paper: https://arxiv.org/abs/2101.11605 . Figure 4
         Output: qr^T [batch head tokens tokens]
         Args:
             tokens: the number of the tokens of the seq
@@ -46,4 +45,4 @@ class RelPosEmb2D(nn.Module):
         r_h = self.emb_w(rearrange(q, 'b h (x y) d -> b (h x) y d', x=self.h, y=self.w))
         r_w = self.emb_h(rearrange(q, 'b h (x y) d -> b (h y) x d', x=self.h, y=self.w))
         q_r = self.expand_emb(r_h, self.h) + self.expand_emb(r_w, self.h)
-        return q_r  # q_r transpose in figure 4
+        return q_r  # q_r transpose in figure 4 of the paper
