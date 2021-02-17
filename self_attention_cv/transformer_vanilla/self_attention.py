@@ -23,7 +23,7 @@ class SelfAttention(nn.Module):
         self.scale_factor = dim ** -0.5  # 1/np.sqrt(dim)
 
     def forward(self, x, mask=None):
-        assert x.dim_head() == 3, '3D tensor must be provided'
+        assert x.dim() == 3, '3D tensor must be provided'
         qkv = self.to_qvk(x)  # [batch, tokens, dim*3 ]
 
         # decomposition to q,v,k

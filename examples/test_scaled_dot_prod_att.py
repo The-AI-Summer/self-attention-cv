@@ -2,10 +2,8 @@ import torch
 
 from self_attention_cv import SelfAttention
 
-model = SelfAttention(dim=64)
-x = torch.rand(16, 10, 64)  # [batch, tokens, dim]
-mask = torch.zeros(10, 10)
-mask[5:8, 5:8] = 1
-y = model(x, mask)
+model = SelfAttention(dim=4)
+x = torch.rand(1, 3, 4)  # [batch, tokens, dim]
+y = model(x)
 assert x.shape == y.shape
 print("SelfAttentionAISummer OK")
