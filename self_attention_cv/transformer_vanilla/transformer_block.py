@@ -9,7 +9,9 @@ class TransformerBlock(nn.Module):
     Detailed analysis: https://theaisummer.com/transformer/
     """
 
-    def __init__(self, dim, heads=8, dim_head=None, dim_linear_block=1024, dropout=0.1, activation=nn.GELU):
+    def __init__(self, dim, heads=8, dim_head=None,
+                 dim_linear_block=1024, dropout=0.1, activation=nn.GELU,
+                 mhsa=None):
         """
         Args:
             dim: token's vector length
@@ -17,9 +19,10 @@ class TransformerBlock(nn.Module):
             dim_head: if none dim/heads is used
             dim_linear_block: the inner projection dim
             dropout: probability of droppping values
+            mhsa: if provided you can change the vanilla self-attention block
         """
         super().__init__()
-        self.mhsa = MultiHeadSelfAttention(dim=dim, heads=heads, dim_head=dim_head)
+        self.mhsa = mhsa if mhsa is not None else MultiHeadSelfAttention(dim=dim, heads=heads, dim_head=dim_head)
         self.drop = nn.Dropout(dropout)
         self.norm_1 = nn.LayerNorm(dim)
         self.norm_2 = nn.LayerNorm(dim)
@@ -40,7 +43,7 @@ class TransformerBlock(nn.Module):
 class TransformerEncoder(nn.Module):
     def __init__(self, dim, blocks=6, heads=8, dim_head=None, dim_linear_block=1024, dropout=0):
         super().__init__()
-        self.block_list = [TransformerBlock(dim, heads, dim_head, dim_linear_block, dropout) for _ in range(blocks)]
+        self.block_list = [TransformerBlock(dim, heads, dim_head,dim_linear_block, dropout) for _ in range(blocks)]
         self.layers = nn.ModuleList(self.block_list)
 
     def forward(self, x, mask=None):
