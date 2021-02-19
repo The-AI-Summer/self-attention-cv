@@ -18,7 +18,7 @@ class ViT(nn.Module):
                  dim_head=None,
                  dropout=0, transformer=None, classification=True):
         """
-        Minimal reimplementation of ViT
+        Minimal re-implementation of ViT
         Args:
             img_dim: the spatial image size
             in_channels: number of img channels
@@ -47,12 +47,10 @@ class ViT(nn.Module):
         self.project_patches = nn.Linear(self.token_dim, dim)
 
         self.emb_dropout = nn.Dropout(dropout)
-        if self.classification:
-            self.cls_token = nn.Parameter(torch.randn(1, 1, dim))
-            self.pos_emb1D = nn.Parameter(torch.randn(tokens + 1, dim))
-            self.mlp_head = nn.Linear(dim, num_classes)
-        else:
-            self.pos_emb1D = nn.Parameter(torch.randn(tokens, dim))
+
+        self.cls_token = nn.Parameter(torch.randn(1, 1, dim))
+        self.pos_emb1D = nn.Parameter(torch.randn(tokens + 1, dim))
+        self.mlp_head = nn.Linear(dim, num_classes)
 
         if transformer is None:
             self.transformer = TransformerEncoder(dim, blocks=blocks, heads=heads,
@@ -71,25 +69,27 @@ class ViT(nn.Module):
         return self.cls_token.expand([batch, -1, -1])
 
     def forward(self, img, mask=None):
-        batch_size = img.shape[0]
         # Create patches
         # from [batch, channels, h, w] to [batch, tokens , N], N=p*p*c , tokens = h/p *w/p
         img_patches = rearrange(img,
                                 'b c (patch_x x) (patch_y y) -> b (x y) (patch_x patch_y c)',
                                 patch_x=self.p, patch_y=self.p)
+
+        batch_size, tokens, _ = img_patches.shape
+
         # project patches with linear layer + add pos emb
         img_patches = self.project_patches(img_patches)
 
         if self.classification:
             img_patches = torch.cat((self.expand_cls_to_batch(batch_size), img_patches), dim=1)
 
-        patch_embeddings = self.emb_dropout(img_patches + self.pos_emb1D)
+        # add pos. embeddings. + dropout
+        # indexing with the current batch's token length to support variable sequences
+        img_patches = img_patches + self.pos_emb1D[:tokens + 1, :]
+        patch_embeddings = self.emb_dropout(img_patches)
 
         # feed patch_embeddings and output of transformer. shape: [batch, tokens, dim]
         y = self.transformer(patch_embeddings, mask)
 
-        if self.classification:
-            # we index only the cls token for classification. nlp tricks :P
-            return self.mlp_head(y[:, 0, :])
-        else:
-            return y
+        # we index only the cls token for classification. nlp tricks :P
+        return self.mlp_head(y[:, 0, :]) if self.classification else y

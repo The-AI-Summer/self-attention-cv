@@ -26,7 +26,7 @@ class LinformerEncoder(nn.Module):
     def __init__(self, dim, tokens, k=None, blocks=4, heads=8, dim_head=None,
                  dim_linear_block=1024, dropout=0.1,
                  shared_projection=True,
-                 trainable_proj=False, activation=nn.GELU):
+                 trainable_proj=True, activation=nn.GELU):
         """
         Based on the Linformer paper
         Link: https://arxiv.org/pdf/2006.04768.pdf

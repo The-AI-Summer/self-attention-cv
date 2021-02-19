@@ -12,3 +12,5 @@ self_attention_cv.egg-info/
 .idea/modules.xml
 .idea/self_attention.iml
 
+self_attention_cv/timesformer
+self_attention_cv/timesformer/*
