@@ -123,6 +123,13 @@ q = torch.rand(2, 4, dim*dim, 128)
 y = model(q)
 ```
 
+## Acknowledgments
+Thanks to Alex Rogozhnikov [@arogozhnikov](https://github.com/arogozhnikov) for the awesome einops package. 
+For my re-implementations I have studied and borrowed code from many repositories of Phil Wang [@lucidrains](https://github.com/lucidrains). 
+By studying  his code I have managed to grasp self-attention, discover nlp stuff that are never
+referred in the papers, and learn from his clean coding style.
+
+ 
 ## References
 
 1. Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez, A. N., ... & Polosukhin, I. (2017). Attention is all you need. arXiv preprint arXiv:1706.03762.
