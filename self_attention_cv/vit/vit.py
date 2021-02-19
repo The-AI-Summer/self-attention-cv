@@ -80,8 +80,7 @@ class ViT(nn.Module):
         # project patches with linear layer + add pos emb
         img_patches = self.project_patches(img_patches)
 
-        if self.classification:
-            img_patches = torch.cat((self.expand_cls_to_batch(batch_size), img_patches), dim=1)
+        img_patches = torch.cat((self.expand_cls_to_batch(batch_size), img_patches), dim=1)
 
         # add pos. embeddings. + dropout
         # indexing with the current batch's token length to support variable sequences
@@ -92,4 +91,4 @@ class ViT(nn.Module):
         y = self.transformer(patch_embeddings, mask)
 
         # we index only the cls token for classification. nlp tricks :P
-        return self.mlp_head(y[:, 0, :]) if self.classification else y
+        return self.mlp_head(y[:, 0, :]) if self.classification else y[:, 1: , :]

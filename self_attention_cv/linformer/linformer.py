@@ -4,7 +4,7 @@ from torch import nn
 
 
 class LinformerAttention(nn.Module):
-    def __init__(self, dim, heads=8, dim_head=None, shared_projection=True, proj_shape=None, trainable_proj=False):
+    def __init__(self, dim, heads=8, dim_head=None, shared_projection=True, proj_shape=None, trainable_proj=True):
         """
         Based on the Linformer paper
         Link: https://arxiv.org/pdf/2006.04768.pdf
