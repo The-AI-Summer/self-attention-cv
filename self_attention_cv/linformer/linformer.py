@@ -2,6 +2,8 @@ import torch
 from einops import rearrange
 from torch import nn
 
+from ..transformer_vanilla.mhsa import compute_mhsa
+
 
 class LinformerAttention(nn.Module):
     def __init__(self, dim, heads=8, dim_head=None, shared_projection=True, proj_shape=None, trainable_proj=True):
@@ -46,14 +48,9 @@ class LinformerAttention(nn.Module):
         v = torch.einsum('b h j d , j k -> b h k d', v, E)
         k = torch.einsum('b h j d , j k -> b h k d', k, E)
 
-        # resulted shape will be: [batch, heads, tokens, tokens]
-        scaled_dot_prod = torch.einsum('b h i d , b h k d -> b h i k', q, k) * self.scale_factor
-
-        # TODO: rethink if is scaling in the k dim 100% correct?
-        attention = torch.softmax(scaled_dot_prod, dim=-1)
-        # calc result per head
-        out = torch.einsum('b h i k , b h k d -> b h i d', attention, v)
+        out = compute_mhsa(q,k,v,scale_factor=self.scale_factor)
         # re-compose: merge heads with dim_head
+
         out = rearrange(out, "b h i d -> b i (h d)")
         # Apply final linear transformation layer
         return self.W_0(out)

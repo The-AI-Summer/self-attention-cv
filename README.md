@@ -23,6 +23,10 @@ It would be nice to pre-install pytorch in your environment, in case you don't h
 More articles are on the way.
 
 ## Code Examples
+To run all the examples:
+```
+$ for f in *.py; do python "$f"; done
+```
 
 #### Multi-head attention
 

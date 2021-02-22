@@ -4,6 +4,19 @@ from einops import rearrange
 from torch import nn
 
 
+def compute_mhsa(q, k, v, scale_factor=1, mask=None):
+    # resulted shape will be: [batch, heads, tokens, tokens]
+    scaled_dot_prod = torch.einsum('... i d , ... j d -> ... i j', q, k) * scale_factor
+
+    if mask is not None:
+        assert mask.shape == scaled_dot_prod.shape[2:]
+        scaled_dot_prod = scaled_dot_prod.masked_fill(mask, -np.inf)
+
+    attention = torch.softmax(scaled_dot_prod, dim=-1)
+    # calc result per head
+    return torch.einsum('... i j , ... j d -> ... i d', attention, v)
+
+
 class MultiHeadSelfAttention(nn.Module):
     def __init__(self, dim, heads=8, dim_head=None):
         """
@@ -31,16 +44,8 @@ class MultiHeadSelfAttention(nn.Module):
         # the resulted shape before casting to tuple will be: [3, batch, heads, tokens, dim_head]
         q, k, v = tuple(rearrange(qkv, 'b t (d k h ) -> k b h t d ', k=3, h=self.heads))
 
-        # resulted shape will be: [batch, heads, tokens, tokens]
-        scaled_dot_prod = torch.einsum('b h i d , b h j d -> b h i j', q, k) * self.scale_factor
+        out = compute_mhsa(q, k, v, mask=mask, scale_factor=self.scale_factor)
 
-        if mask is not None:
-            assert mask.shape == scaled_dot_prod.shape[2:]
-            scaled_dot_prod = scaled_dot_prod.masked_fill(mask, -np.inf)
-
-        attention = torch.softmax(scaled_dot_prod, dim=-1)
-        # calc result per head
-        out = torch.einsum('b h i j , b h j d -> b h i d', attention, v)
         # re-compose: merge heads with dim_head
         out = rearrange(out, "b h t d -> b t (h d)")
         # Apply final linear transformation layer
