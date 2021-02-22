@@ -31,20 +31,25 @@ def expand_to_batch(x, desired_size):
     return repeat(x, 'b ... -> (b tile) ...', tile=tile)
 
 
+# TODO Linformer linear attention
+# my goal is to extend it to use linear attention based on linformer
+# since we know that the images in videos have the same number of tokens <--> pixels
 class SpacetimeMHSA(nn.Module):
-    def __init__(self, dim, tokens_to_attend, heads=8, dim_head=None, space_att=True, classification=True):
+    def __init__(self, dim, tokens_to_attend, space_att, heads=8, dim_head=None, classification=True):
         """
         Attention through time and space to process videos
         choose mode (whether to operate in space and time with space_att (bool) )
         CLS token is used for video classification, which will attend all tokens in both
         space and time before attention only in time or space.
 
+        Code is based on lucidrains repo: https://github.com/lucidrains/TimeSformer-pytorch
         Args:
             dim: token's dimension, i.e. word embedding vector size
             tokens_to_attend: space (patches) or time (frames) tokens that we will attend to
             heads: the number of distinct representations to learn
-            dim_head: the dim of the head. In general dim_head<dim.
-            However, it may not necessary be (dim/heads)
+            dim_head: the dim of the head. In general dim_head=dim//heads.
+            space_att: whether to use space or time attention in this block
+            classification: when True a classification token is expected in the forward call
         """
         super().__init__()
         self.dim_head = (int(dim / heads)) if dim_head is None else dim_head
@@ -60,11 +65,9 @@ class SpacetimeMHSA(nn.Module):
 
     def forward(self, x):
         """
-        Expects input x with merged the tokens in space and time
+        Expects input x with merged tokens in both space and time
         Args:
             x: [batch, tokens_timespace+ cls_token, dim*3*heads ]
-        Returns:
-
         """
         assert x.dim() == 3
         batch, token_dim = x.shape[0], 2
@@ -82,10 +85,10 @@ class SpacetimeMHSA(nn.Module):
             (cls_k, k_3D), (cls_v, v_3D) = map(split_cls, (k, v))
 
             # this is where we decompose/separate the tokens for attention in time or space only
-            q_sep, k_sep, v_sep = map(self.reshape_timespace, [q_3D, k_3D, v_3D], [self.tokens_to_attend]*3)
+            q_sep, k_sep, v_sep = map(self.reshape_timespace, [q_3D, k_3D, v_3D], [self.tokens_to_attend] * 3)
 
             # we have to expand/repeat the cls_k, and cls_v to k,v
-            cls_k, cls_v = map(expand_to_batch, (cls_k,cls_v), (k_sep.shape[0], v_sep.shape[0]) )
+            cls_k, cls_v = map(expand_to_batch, (cls_k, cls_v), (k_sep.shape[0], v_sep.shape[0]))
 
             k = torch.cat((cls_k, k_sep), dim=token_dim)
             v = torch.cat((cls_v, v_sep), dim=token_dim)
@@ -97,19 +100,9 @@ class SpacetimeMHSA(nn.Module):
             # and spacetime cls token
             out = torch.cat((out_cls, out_mhsa), dim=token_dim)
         else:
-            out = compute_mhsa(q,k,v)
+            out = compute_mhsa(q, k, v)
 
         # re-compose: merge heads with dim_head
         out = rearrange(out, "b h t d -> b t (h d)")
         # Apply final linear transformation layer
         return self.W_0(out)
-
-
-model_time = SpacetimeMHSA(dim=64, tokens_to_attend=10)
-model_space = SpacetimeMHSA(dim=64, tokens_to_attend=128)
-input_seq = torch.rand(2, 10*128+1, 64)
-y = model_time(input_seq)
-print('time ok')
-y = model_space(y)
-print('space ok')
-print(y.shape)
