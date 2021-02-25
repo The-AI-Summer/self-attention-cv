@@ -2,3 +2,4 @@ torch>=1.7
 torchvision>=0.8
 einops>=0.3
 numpy>=1.19
+pytest>=6.2

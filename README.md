@@ -19,14 +19,11 @@ It would be nice to pre-install pytorch in your environment, in case you don't h
 - [How Transformers work in deep learning and NLP](https://theaisummer.com/transformer/)
 - [How the Vision Transformer (ViT) works in 10 minutes: an image is worth 16x16 words](https://theaisummer.com/vision-transformer/)
 - [Understanding einsum for Deep learning: implement a transformer with multi-head self-attention from scratch](https://theaisummer.com/einsum-attention/)
+- [How Positional Embeddings work in Self-Attention](https://theaisummer.com/positional-embeddings/)
 
-More articles are on the way.
 
 ## Code Examples
-To run all the examples:
-```
-$ for f in *.py; do python "$f"; done
-```
+
 
 #### Multi-head attention
 
