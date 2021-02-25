@@ -5,6 +5,13 @@ from torch import nn
 from ..transformer_vanilla.mhsa import compute_mhsa
 
 
+def project_vk_linformer(v, k, E):
+    # project k,v
+    v = torch.einsum('b h j d , j k -> b h k d', v, E)
+    k = torch.einsum('b h j d , j k -> b h k d', k, E)
+    return v, k
+
+
 class LinformerAttention(nn.Module):
     def __init__(self, dim, heads=8, dim_head=None, shared_projection=True, proj_shape=None, trainable_proj=True):
         """
@@ -44,11 +51,9 @@ class LinformerAttention(nn.Module):
         qkv = self.to_qvk(x)  # [batch, tokens, dim*3*heads ]
         q, k, v = tuple(rearrange(qkv, 'b t (d k h ) -> k b h t d ', k=3, h=self.heads))
 
-        # project k,v
-        v = torch.einsum('b h j d , j k -> b h k d', v, E)
-        k = torch.einsum('b h j d , j k -> b h k d', k, E)
+        v, k = project_vk_linformer(v, k, E)
 
-        out = compute_mhsa(q,k,v,scale_factor=self.scale_factor)
+        out = compute_mhsa(q, k, v, scale_factor=self.scale_factor)
         # re-compose: merge heads with dim_head
 
         out = rearrange(out, "b h i d -> b i (h d)")

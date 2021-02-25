@@ -91,4 +91,4 @@ class ViT(nn.Module):
         y = self.transformer(patch_embeddings, mask)
 
         # we index only the cls token for classification. nlp tricks :P
-        return self.mlp_head(y[:, 0, :]) if self.classification else y[:, 1: , :]
+        return self.mlp_head(y[:, 0, :]) if self.classification else y[:, 1:, :]

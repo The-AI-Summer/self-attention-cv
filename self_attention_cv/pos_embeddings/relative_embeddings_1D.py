@@ -27,7 +27,6 @@ def relative_to_absolute(q):
     return final_x
 
 
-
 def rel_pos_emb_1d(q, rel_emb, shared_heads):
     """
     Same functionality as RelPosEmb1D

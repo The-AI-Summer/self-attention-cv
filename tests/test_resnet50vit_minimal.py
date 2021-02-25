@@ -21,4 +21,3 @@ def test_vit():
     y = model(x)  # [2,10]
     assert y.shape == (2, 10)  # batch, classes
     print('ViT inference complete')
-

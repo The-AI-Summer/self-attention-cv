@@ -7,7 +7,6 @@ a = torch.rand(1, 512, 64)
 y = model(a)
 assert y.shape == a.shape
 
-
 model = LinformerEncoder(dim=64, tokens=512)
 y = model(a)
 assert y.shape == a.shape

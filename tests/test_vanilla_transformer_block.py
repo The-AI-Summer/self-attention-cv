@@ -19,4 +19,3 @@ def test_MultiHeadSelfAttention():
     y = model(x, mask)
     assert y.shape == x.shape
     print("Transformer block AISummer OK")
-

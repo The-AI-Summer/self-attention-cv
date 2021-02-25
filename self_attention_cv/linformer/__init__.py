@@ -1,1 +1,1 @@
-from .LinformerBlock import LinformerAttention,LinformerBlock,LinformerEncoder
+from .LinformerBlock import LinformerAttention, LinformerBlock, LinformerEncoder

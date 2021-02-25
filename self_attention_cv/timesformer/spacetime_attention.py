@@ -2,6 +2,7 @@ import torch
 from einops import rearrange, repeat
 from torch import nn
 
+from self_attention_cv.linformer.linformer import project_vk_linformer
 from self_attention_cv.transformer_vanilla.mhsa import compute_mhsa
 
 
@@ -35,7 +36,9 @@ def expand_to_batch(x, desired_size):
 # my goal is to extend it to use linear attention based on linformer
 # since we know that the images in videos have the same number of tokens <--> pixels
 class SpacetimeMHSA(nn.Module):
-    def __init__(self, dim, tokens_to_attend, space_att, heads=8, dim_head=None, classification=True):
+    def __init__(self, dim, tokens_to_attend, space_att, heads=8,
+                 dim_head=None, classification=True,
+                 linear_spatial_attention=False, k=None):
         """
         Attention through time and space to process videos
         choose mode (whether to operate in space and time with space_att (bool) )
@@ -62,6 +65,12 @@ class SpacetimeMHSA(nn.Module):
         self.reshape_timespace = space_att_rearrange if self.space_att else time_att_rearrange
         self.tokens_to_attend = tokens_to_attend
         self.classification = classification
+        self.linear_spatial_attention = linear_spatial_attention and self.space_att
+        self.k = k if k is not None else 256
+
+        if self.linear_spatial_attention:
+            proj_shape = tuple((self.tokens_to_attend + 1, k))
+            self.E = torch.nn.Parameter(torch.randn(proj_shape))
 
     def forward(self, x):
         """
@@ -92,6 +101,10 @@ class SpacetimeMHSA(nn.Module):
 
             k = torch.cat((cls_k, k_sep), dim=token_dim)
             v = torch.cat((cls_v, v_sep), dim=token_dim)
+
+            if self.linear_spatial_attention:
+                v, k = project_vk_linformer(v, k, self.E)
+
             # finally the conventional attention only through space/time
             out_mhsa = compute_mhsa(q_sep, k, v, scale_factor=self.scale_factor)
 

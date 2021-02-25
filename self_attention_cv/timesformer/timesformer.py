@@ -10,7 +10,7 @@ class TimeSformerBlock(nn.Module):
                  heads=None, dim_linear_block=1024,
                  activation=nn.GELU,
                  dropout=0.1, classification=True,
-                 linear_spatial_attention=True, k=None):
+                 linear_spatial_attention=False, k=None):
         """
         Args:
             dim: token's dim
@@ -28,7 +28,8 @@ class TimeSformerBlock(nn.Module):
 
         self.space_att = nn.Sequential(nn.LayerNorm(dim),
                                        SpacetimeMHSA(dim, tokens_to_attend=self.patches, space_att=True,
-                                                     heads=heads, classification=self.classification))
+                                                     heads=heads, classification=self.classification,
+                                                     linear_spatial_attention=linear_spatial_attention, k=k))
 
         self.mlp = nn.Sequential(
             nn.LayerNorm(dim),
@@ -60,7 +61,7 @@ class Timesformer(nn.Module):
                  dim_head=None,
                  activation=nn.GELU,
                  dropout=0,
-                 linear_spatial_attention=True, k=None):
+                 linear_spatial_attention=False, k=None):
         """
         Adapting ViT for video classification.
         Best strategy to handle multiple frames so far is
@@ -102,15 +103,15 @@ class Timesformer(nn.Module):
         self.cls_token = nn.Parameter(torch.randn(1, 1, dim))
         self.pos_emb1D = nn.Parameter(torch.randn(tokens_spacetime + 1, dim))
 
-        self.mlp_head = nn.Sequential(nn.LayerNorm(dim),nn.Linear(dim, num_classes))
+        self.mlp_head = nn.Sequential(nn.LayerNorm(dim), nn.Linear(dim, num_classes))
 
         transormer_blocks = [TimeSformerBlock(
-                                frames=frames, patches=img_patches, dim=dim,
-                                heads=heads, dim_linear_block=dim_linear_block,
-                                activation=activation,
-                                dropout=dropout,
-                                linear_spatial_attention=linear_spatial_attention, k=k)
-                                for _ in range(blocks)]
+            frames=frames, patches=img_patches, dim=dim,
+            heads=heads, dim_linear_block=dim_linear_block,
+            activation=activation,
+            dropout=dropout,
+            linear_spatial_attention=linear_spatial_attention, k=k)
+            for _ in range(blocks)]
 
         self.transformer = nn.Sequential(*transormer_blocks)
 
