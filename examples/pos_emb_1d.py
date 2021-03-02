@@ -1,7 +1,7 @@
 import torch
 
 from self_attention_cv.pos_embeddings import AbsPosEmb1D, RelPosEmb1D
-from self_attention_cv.pos_embeddings.pos_encoding_sin import PositionalEncoding1D
+from self_attention_cv.pos_embeddings import PositionalEncoding1D
 
 model = AbsPosEmb1D(tokens=20, dim_head=64)
 # batch heads tokens dim_head
