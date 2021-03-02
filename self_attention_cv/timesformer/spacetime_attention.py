@@ -1,9 +1,10 @@
 import torch
-from einops import rearrange, repeat
+from einops import rearrange
 from torch import nn
 
 from self_attention_cv.linformer.linformer import project_vk_linformer
 from self_attention_cv.transformer_vanilla.mhsa import compute_mhsa
+from ..common import expand_to_batch
 
 
 def split_cls(x):
@@ -27,14 +28,6 @@ def merge_timespace(x, batch, space=False):
     return rearrange(x, f'(b k) h t d -> {out_indices}', b=batch)
 
 
-def expand_to_batch(x, desired_size):
-    tile = desired_size // x.shape[0]
-    return repeat(x, 'b ... -> (b tile) ...', tile=tile)
-
-
-# TODO Linformer linear attention
-# my goal is to extend it to use linear attention based on linformer
-# since we know that the images in videos have the same number of tokens <--> pixels
 class SpacetimeMHSA(nn.Module):
     def __init__(self, dim, tokens_to_attend, space_att, heads=8,
                  dim_head=None, classification=True,

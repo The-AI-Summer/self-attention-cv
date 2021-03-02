@@ -2,8 +2,8 @@ import torch
 import torch.nn as nn
 from einops import rearrange
 
-from .spacetime_attention import SpacetimeMHSA, expand_to_batch
-
+from .spacetime_attention import SpacetimeMHSA
+from ..common import expand_to_batch
 
 class TimeSformerBlock(nn.Module):
     def __init__(self, *, frames, patches, dim=512,

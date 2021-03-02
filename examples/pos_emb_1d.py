@@ -1,6 +1,7 @@
 import torch
 
 from self_attention_cv.pos_embeddings import AbsPosEmb1D, RelPosEmb1D
+from self_attention_cv.pos_embeddings.pos_encoding_sin import PositionalEncoding1D
 
 model = AbsPosEmb1D(tokens=20, dim_head=64)
 # batch heads tokens dim_head
@@ -13,3 +14,9 @@ y2 = model(q)
 
 assert y2.shape == y1.shape
 print('abs and pos emb ok')
+
+a = torch.rand(3, 64, 128)
+pos_enc = PositionalEncoding1D(dim=128, max_tokens=64)
+b = pos_enc(a)
+assert a.shape == b.shape
+print('sinusoidal pos enc 1D ok')

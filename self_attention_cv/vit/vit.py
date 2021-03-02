@@ -3,6 +3,7 @@ import torch.nn as nn
 from einops import rearrange
 
 from self_attention_cv import TransformerEncoder
+from ..common import expand_to_batch
 
 
 class ViT(nn.Module):
@@ -60,14 +61,6 @@ class ViT(nn.Module):
         else:
             self.transformer = transformer
 
-    def expand_cls_to_batch(self, batch):
-        """
-        Args:
-            batch: batch size
-        Returns: cls token expanded to the batch size
-        """
-        return self.cls_token.expand([batch, -1, -1])
-
     def forward(self, img, mask=None):
         # Create patches
         # from [batch, channels, h, w] to [batch, tokens , N], N=p*p*c , tokens = h/p *w/p
@@ -80,7 +73,7 @@ class ViT(nn.Module):
         # project patches with linear layer + add pos emb
         img_patches = self.project_patches(img_patches)
 
-        img_patches = torch.cat((self.expand_cls_to_batch(batch_size), img_patches), dim=1)
+        img_patches = torch.cat((expand_to_batch(self.cls_token, desired_size=batch_size), img_patches), dim=1)
 
         # add pos. embeddings. + dropout
         # indexing with the current batch's token length to support variable sequences
