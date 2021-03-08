@@ -130,6 +130,17 @@ For my re-implementations I have studied and borrowed code from many repositorie
 By studying  his code I have managed to grasp self-attention, discover nlp stuff that are never
 referred in the papers, and learn from his clean coding style.
 
+### Cited as
+
+```
+@article{adaloglou2021transformer,
+    title   = "Transformers in Computer Vision",
+    author  = "Adaloglou, Nikolas",
+    journal = "https://theaisummer.com/",
+    year    = "2021",
+    howpublished = {https://github.com/The-AI-Summer/self-attention-cv},
+  }
+```
  
 ## References
 
