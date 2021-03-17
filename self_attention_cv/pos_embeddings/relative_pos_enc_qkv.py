@@ -35,7 +35,8 @@ class Relative2DPosEncQKV(nn.Module):
         return rearrange(relative_index_2d, 'i j->(i j)')  # flatten
 
     def forward(self):
-        all_embeddings = torch.index_select(self.relative, 1, self.relative_index_2d)  # [head_planes , (dim*dim)]
+        rel_indx = self.relative_index_2d.to(self.relative.device)
+        all_embeddings = torch.index_select(self.relative, 1, rel_indx)  # [head_planes , (dim*dim)]
 
         all_embeddings = rearrange(all_embeddings, ' c (x y)  -> c x y', x=self.dim)
 
