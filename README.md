@@ -20,6 +20,7 @@ It would be nice to pre-install pytorch in your environment, in case you don't h
 - [How the Vision Transformer (ViT) works in 10 minutes: an image is worth 16x16 words](https://theaisummer.com/vision-transformer/)
 - [Understanding einsum for Deep learning: implement a transformer with multi-head self-attention from scratch](https://theaisummer.com/einsum-attention/)
 - [How Positional Embeddings work in Self-Attention](https://theaisummer.com/positional-embeddings/)
+- [Why multi-head self attention works: math, intuitions and 10+1 hidden insights](https://theaisummer.com/self-attention/)
 
 
 ## Code Examples
