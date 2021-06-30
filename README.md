@@ -11,7 +11,8 @@ Focused on computer vision self-attention modules.
 
 ```$ pip install self-attention-cv``` 
 
-It would be nice to pre-install pytorch in your environment, in case you don't have a GPU.
+It would be nice to pre-install pytorch in your environment, in case you don't have a GPU. To run the tests from the terminal 
+```$ pytest``` you may need to run ``` export PYTHONPATH=$PATHONPATH:`pwd` ``` before.
 
 
 ## Related articles

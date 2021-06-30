@@ -3,12 +3,11 @@ import torch.nn as nn
 from ..common import expand_to_batch
 
 
-
 # adapted from https://pytorch.org/tutorials/beginner/transformer_tutorial.html
-class PositionalEncoding1D(nn.Module):
+class PositionalEncodingSin(nn.Module):
 
     def __init__(self, dim, dropout=0.1, max_tokens=5000):
-        super(PositionalEncoding1D, self).__init__()
+        super(PositionalEncodingSin, self).__init__()
         self.dropout = nn.Dropout(p=dropout)
 
         pe = torch.zeros(1, max_tokens, dim)
