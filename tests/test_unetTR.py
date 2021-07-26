@@ -22,6 +22,5 @@ def test_unettr():
     print(model)
     pytorch_total_params = sum(p.numel() for p in model.parameters())
     print(pytorch_total_params)
-    print(pytorch_total_params - 101910630)
+    print('different parameters from the official model:', pytorch_total_params - 101910630)
 
-test_unettr()
