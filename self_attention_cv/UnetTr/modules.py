@@ -44,23 +44,35 @@ class Conv3DBlock(nn.Module):
 class TranspConv3DBlock(nn.Module):
     def __init__(self, in_planes, out_planes):
         super().__init__()
-        self.block = nn.ConvTranspose3d(in_planes, out_planes, kernel_size=2, stride=2, padding=0, output_padding=0)
+        self.block = nn.ConvTranspose3d(in_planes, out_planes, kernel_size=2, stride=2,
+                                        padding=0, output_padding=0,bias=False)
 
     def forward(self, x):
         y = self.block(x)
         return y
 
 
-# blue box in Fig.1
 class BlueBlock(nn.Module):
-    def __init__(self, in_planes, out_planes, layers=1):
+    def __init__(self, in_planes, out_planes, layers=1, conv_block=False):
+        """
+        blue box in Fig.1
+        Args:
+            in_planes: in channels of transpose convolution
+            out_planes: out channels of transpose convolution
+            layers: number of blue blocks, transpose convs
+            conv_block: whether to include a conv block after each transpose conv. deafaults to False
+        """
         super().__init__()
         self.blocks = nn.ModuleList([TranspConv3DBlock(in_planes, out_planes),
-                                            Conv3DBlock(out_planes, out_planes, double=False)])
+                                            ])
+        if conv_block:
+            self.blocks.append(Conv3DBlock(out_planes, out_planes, double=False))
+
         if int(layers)>=2:
             for _ in range(int(layers) - 1):
                 self.blocks.append(TranspConv3DBlock(out_planes, out_planes))
-                self.blocks.append(Conv3DBlock(out_planes, out_planes, double=False))
+                if conv_block:
+                    self.blocks.append(Conv3DBlock(out_planes, out_planes, double=False))
 
     def forward(self, x):
         for blk in self.blocks:

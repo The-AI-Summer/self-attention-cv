@@ -89,15 +89,15 @@ class UNETR(nn.Module):
         self.z3_deconv = TranspConv3DBlock(base_filters * 2, base_filters)
 
         # Yellow blocks in Fig.1
-        self.z9_conv = Conv3DBlock(base_filters * 8 * 2, base_filters * 8, double=True)
-        self.z6_conv = Conv3DBlock(base_filters * 4 * 2, base_filters * 4, double=True)
-        self.z3_conv = Conv3DBlock(base_filters * 2 * 2, base_filters * 2, double=True)
+        self.z9_conv = Conv3DBlock(base_filters * 8 * 2, base_filters * 8, double=True, norm=self.norm)
+        self.z6_conv = Conv3DBlock(base_filters * 4 * 2, base_filters * 4, double=True, norm=self.norm)
+        self.z3_conv = Conv3DBlock(base_filters * 2 * 2, base_filters * 2, double=True, norm=self.norm)
         # out convolutions
         self.out_conv = nn.Sequential(
             # last yellow conv block
-            Conv3DBlock(base_filters * 2, base_filters, double=True),
+            Conv3DBlock(base_filters * 2, base_filters, double=True, norm=self.norm),
             # grey block, final classification layer
-            Conv3DBlock(base_filters, output_dim, kernel_size=1, double=False))
+            nn.Conv3d(base_filters, output_dim, kernel_size=1, stride=1))
 
     def forward(self, x):
         transf_input = self.embed(x)
