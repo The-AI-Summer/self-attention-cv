@@ -9,11 +9,12 @@ from ..vit import ViT
 class TransUnet(nn.Module):
     def __init__(self, *, img_dim, in_channels, classes,
                  vit_blocks=12,
-                 vit_heads=4,
-                 vit_dim_linear_mhsa_block=1024,
+                 vit_heads=12,
+                 vit_dim_linear_mhsa_block=3072,
+                 patch_size=8,
+                 vit_transformer_dim=768,
                  vit_transformer=None,
-                 vit_channels = None,
-                 patch_size=1,
+                 vit_channels=None,
                  ):
         """
         My reimplementation of TransUnet based on the paper:
@@ -38,6 +39,7 @@ class TransUnet(nn.Module):
         super().__init__()
         self.inplanes = 128
         self.patch_size = patch_size
+        self.vit_transformer_dim = vit_transformer_dim
         vit_channels = self.inplanes * 8 if vit_channels is None else vit_channels
 
         # Not clear how they used resnet arch. since the first input after conv
@@ -55,41 +57,45 @@ class TransUnet(nn.Module):
         assert (self.img_dim_vit % patch_size == 0), "Vit patch_dim not divisible"
 
         self.vit = ViT(img_dim=self.img_dim_vit,
-                       in_channels=vit_channels,  # encoder channels
+                       in_channels=vit_channels,  # input features' channels (encoder)
                        patch_dim=patch_size,
-                       dim=vit_channels,  # vit out channels for decoding
+                       # transformer inside dimension that input features will be projected
+                       # out will be [batch, dim_out_vit_tokens, dim ]
+                       dim=vit_transformer_dim,
                        blocks=vit_blocks,
                        heads=vit_heads,
                        dim_linear_block=vit_dim_linear_mhsa_block,
                        classification=False) if vit_transformer is None else vit_transformer
 
-        self.vit_conv = SignleConv(in_ch=vit_channels, out_ch=512)
-
-        # to project patches back
-        dim_out_vit_tokens = (self.img_dim_vit // patch_size) ** 2
+        # to project patches back - undoes vit's patchification
         token_dim = vit_channels * (patch_size ** 2)
-        self.project_patches_back = nn.Linear(dim_out_vit_tokens, token_dim)
-
-        self.dec1 = Up(1024, 256)
+        self.project_patches_back = nn.Linear(vit_transformer_dim, token_dim)
+        # upsampling path
+        self.vit_conv = SignleConv(in_ch=vit_channels, out_ch=512)
+        self.dec1 = Up(vit_channels, 256)
         self.dec2 = Up(512, 128)
         self.dec3 = Up(256, 64)
         self.dec4 = Up(64, 16)
-        self.conv1x1 = nn.Conv2d(16, classes, kernel_size=1)
+        self.conv1x1 = nn.Conv2d(in_channels=16, out_channels=classes, kernel_size=1)
 
     def forward(self, x):
         # ResNet 50-like encoder
-        x2 = self.init_conv(x)  # 128,64,64
-        x4 = self.conv1(x2)  # 256,32,32
-        x8 = self.conv2(x4)  # 512,16,16
-        x16 = self.conv3(x8)  # 1024,8,8
-        y = self.vit(x16)
+        x2 = self.init_conv(x)
+        x4 = self.conv1(x2)
+        x8 = self.conv2(x4)
+        x16 = self.conv3(x8)  # out shape of 1024, img_dim_vit, img_dim_vit
+        y = self.vit(x16)  # out shape of number_of_patches, vit_transformer_dim
+
+        # from [number_of_patches, vit_transformer_dim] -> [number_of_patches, token_dim]
         y = self.project_patches_back(y)
+
+        # from [batch, number_of_patches, token_dim] -> [batch, channels, img_dim_vit, img_dim_vit]
         y = rearrange(y, 'b (x y) (patch_x patch_y c) -> b c (patch_x x) (patch_y y)',
                       x=self.img_dim_vit // self.patch_size, y=self.img_dim_vit // self.patch_size,
                       patch_x=self.patch_size, patch_y=self.patch_size)
 
         y = self.vit_conv(y)
-        y = self.dec1(y, x8)  # 256,16,16
+        y = self.dec1(y, x8)
         y = self.dec2(y, x4)
         y = self.dec3(y, x2)
         y = self.dec4(y)

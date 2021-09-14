@@ -42,21 +42,21 @@ class ViT(nn.Module):
         tokens = (img_dim // patch_dim) ** 2
         self.token_dim = in_channels * (patch_dim ** 2)
         self.dim = dim
-        self.dim_head = (int(dim / heads)) if dim_head is None else dim_head
+        self.dim_head = (int(self.dim / heads)) if dim_head is None else dim_head
 
         # Projection and pos embeddings
-        self.project_patches = nn.Linear(self.token_dim, dim)
+        self.project_patches = nn.Linear(self.token_dim, self.dim)
 
         self.emb_dropout = nn.Dropout(dropout)
 
-        self.cls_token = nn.Parameter(torch.randn(1, 1, dim))
-        self.pos_emb1D = nn.Parameter(torch.randn(tokens + 1, dim))
+        self.cls_token = nn.Parameter(torch.randn(1, 1, self.dim))
+        self.pos_emb1D = nn.Parameter(torch.randn(tokens + 1, self.dim))
 
         if self.classification:
-            self.mlp_head = nn.Linear(dim, num_classes)
+            self.mlp_head = nn.Linear(self.dim, num_classes)
 
         if transformer is None:
-            self.transformer = TransformerEncoder(dim, blocks=blocks, heads=heads,
+            self.transformer = TransformerEncoder(self.dim, blocks=blocks, heads=heads,
                                                   dim_head=self.dim_head,
                                                   dim_linear_block=dim_linear_block,
                                                   dropout=dropout)
